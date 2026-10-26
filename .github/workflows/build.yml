@@ -1,0 +1,75 @@
+name: Build JT Motion (artifact only)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jt-motion-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }} / ${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: win
+            arch: x64
+            runner: windows-latest
+          - platform: win
+            arch: ia32
+            runner: windows-latest
+          - platform: win
+            arch: arm64
+            runner: windows-latest
+          - platform: mac
+            arch: x64
+            runner: macos-15-intel
+          - platform: mac
+            arch: arm64
+            runner: macos-14
+          - platform: linux
+            arch: x64
+            runner: ubuntu-latest
+          - platform: linux
+            arch: arm64
+            runner: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Check source syntax
+        run: npm run check
+      - name: Package desktop app
+        shell: bash
+        env:
+          JT_PLATFORM: ${{ matrix.platform }}
+          JT_ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          case "$JT_PLATFORM" in
+            win) npx electron-builder --win --${JT_ARCH} --publish never ;;
+            mac) npx electron-builder --mac --${JT_ARCH} --publish never ;;
+            linux) npx electron-builder --linux --${JT_ARCH} --publish never ;;
+            *) echo "Unsupported platform: $JT_PLATFORM"; exit 2 ;;
+          esac
+      - name: Upload build artifact (no release)
+        uses: actions/upload-artifact@v4
+        with:
+          name: jt-motion-${{ matrix.platform }}-${{ matrix.arch }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 30
