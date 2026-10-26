@@ -1,0 +1,24 @@
+{
+  "name": "jt-motion",
+  "version": "0.1.0",
+  "private": true,
+  "description": "JT Motion — video planning and storyboard workspace",
+  "author": {
+    "name": "J Tech Digital World",
+    "email": "support@jtdigitalworld.com"
+  },
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "serve": "npx --yes http-server . -p 4173 -c-1",
+    "dist": "electron-builder --config electron-builder.yml --publish never",
+    "check": "node --check app.js && node --check desktop/main.cjs"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
