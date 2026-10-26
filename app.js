@@ -134,6 +134,25 @@
     }
     persist();
   }
+  const STARTER_TEMPLATES = {
+    music: {title:"Music Video",format:"Music video",description:"A performance-led music video with a clear visual motif.",scenes:[["Opening atmosphere","Wide establishing shot; establish colour palette and location.","Slow reveal; introduce artist silhouette.","Intro texture and ambient sound",8],["Performance hook","Medium and close-up performance coverage; motivated camera movement.","Artist performs the first hook; capture alternate takes.","Song hook; sync performance",18],["Visual motif","Detail inserts and rhythmic visual transitions.","Cut between symbolic objects and performance.","Beat-synced accents",12],["Final hero shot","Memorable wide or close-up image for the ending.","Hold final performance moment, then fade.","Final chorus tail and reverb",10]]},
+    short: {title:"Short Film",format:"Short film",description:"A compact story with setup, conflict, turning point and resolution.",scenes:[["Opening image","Introduce protagonist, setting and mood.","Show the ordinary world and a visual clue.","Room tone; restrained score",10],["Inciting incident","A detail or event changes the situation.","The protagonist discovers a problem.","Sound cue introduces tension",15],["Turning point","Change framing and pace to emphasize the decision.","The protagonist makes a consequential choice.","Score builds",18],["Resolution","Return to a visual from the opening, now changed.","Show the result and leave a clear final image.","Resolve music; clean ending",12]]},
+    social: {title:"Vertical Social Clip",format:"Social media",description:"A short, mobile-first video with an immediate hook and captions.",scenes:[["Hook (0–3s)","Vertical 9:16 close-up or bold on-screen subject.","Lead with the strongest visual or question.","Immediate voice or sound hook",3],["Value / reveal","Clear central action framed for phone screens.","Deliver one useful point or show the transformation.","Dialogue with captions",12],["Proof","Close detail, before/after or quick demonstration.","Show evidence of the main claim.","Short accent",8],["Call to action","Simple end card with readable safe margins.","Invite one clear next step.","Music sting then clean cut",3]]},
+    product: {title:"Product Advertisement",format:"Advertisement",description:"A benefit-first product spot with a strong final brand frame.",scenes:[["Problem","Recognizable real-world situation.","Show the friction the audience experiences.","Natural sound",5],["Product reveal","Hero lighting; clean product close-up.","Reveal the product with a decisive move.","Signature sound cue",5],["Benefits","Macro details and use in context.","Demonstrate two or three concrete benefits.","Rhythmic music bed",12],["Brand end card","Simple composition with generous negative space.","Show brand and one call to action.","Short sonic logo",4]]},
+    doc: {title:"Mini Documentary",format:"Documentary",description:"A concise human story supported by interview and observational footage.",scenes:[["Establishing context","Location wide shot and observational details.","Introduce place, subject and central question.","Natural ambience",10],["Interview setup","Eye-level medium shot; clean background and eyeline.","Subject explains the background in their own words.","Clean dialogue recording",20],["B-roll evidence","Specific details that support the interview.","Show the work, people or process being discussed.","Location sound under interview",15],["Reflection","Return to subject or a meaningful location detail.","Answer the central question or leave a thoughtful takeaway.","Gentle music out",10]]}
+  };
+  function applyTemplate(key) {
+    const starter = STARTER_TEMPLATES[key];
+    if (!starter) return;
+    if (project.scenes.length && !confirm("Replace the current storyboard with the selected template? Export your project first if you want a backup.")) {
+      $("#templateSelect").value = "";
+      return;
+    }
+    project = {schemaVersion:1,title:starter.title,format:starter.format,frameRate:"24 fps",description:starter.description,
+      scenes:starter.scenes.map((s,i)=>({id:makeId(),title:s[0],visual:s[1],action:s[2],audio:s[3],duration:s[4]}))};
+    render(); persist(); $("#templateSelect").value = "";
+  }
+
   function addScene() {
     project.scenes.push({id: makeId(), title: "Scene " + (project.scenes.length + 1), visual: "", action: "", audio: "", duration: 10});
     render();
@@ -186,6 +205,7 @@
   $("#frameRate").addEventListener("change", e => updateProject("frameRate", e.target.value));
   $("#projectDescription").addEventListener("input", e => updateProject("description", e.target.value.slice(0, 1200)));
   $("#addSceneBtn").addEventListener("click", addScene);
+  $("#templateSelect").addEventListener("change", e => applyTemplate(e.target.value));
   $("#emptyAddBtn").addEventListener("click", addScene);
   $("#exportBtn").addEventListener("click", exportProject);
   $("#importBtn").addEventListener("click", () => $("#fileInput").click());
