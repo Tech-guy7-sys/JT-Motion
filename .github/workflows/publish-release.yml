@@ -1,0 +1,99 @@
+name: Build and publish JT Motion releases
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to build and publish (for example v0.1.1)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: jt-motion-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }} / ${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: win
+            arch: x64
+            runner: windows-latest
+          - platform: win
+            arch: ia32
+            runner: windows-latest
+          - platform: win
+            arch: arm64
+            runner: windows-latest
+          - platform: mac
+            arch: x64
+            runner: macos-15-intel
+          - platform: mac
+            arch: arm64
+            runner: macos-14
+          - platform: linux
+            arch: x64
+            runner: ubuntu-latest
+          - platform: linux
+            arch: arm64
+            runner: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Validate source
+        run: npm run check
+      - name: Package desktop app
+        shell: bash
+        env:
+          JT_PLATFORM: ${{ matrix.platform }}
+          JT_ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          case "$JT_PLATFORM" in
+            win) npx electron-builder --win --${JT_ARCH} --publish never ;;
+            mac) npx electron-builder --mac --${JT_ARCH} --publish never ;;
+            linux) npx electron-builder --linux --${JT_ARCH} --publish never ;;
+            *) echo "Unsupported platform: $JT_PLATFORM"; exit 2 ;;
+          esac
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${slug}-${{ matrix.platform }}-${{ matrix.arch }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all platform packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ${slug}-*
+          path: release-assets
+      - name: Create release and attach installers
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+          name: "JT Motion ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}"
+          generate_release_notes: true
+          files: release-assets/**/*
+          fail_on_unmatched_files: true
