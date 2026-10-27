@@ -10,3 +10,16 @@ body{background:radial-gradient(ellipse at 80% -15%,rgba(93,78,211,.2),transpare
 .heading-actions{display:flex;align-items:end;gap:10px;flex-wrap:wrap}.template-picker{display:flex;flex-direction:column;gap:6px;color:var(--muted);font-size:10px;font-weight:700;letter-spacing:.4px;min-width:190px}.template-picker .text-input{padding:10px 12px}
 .empty-state{background:radial-gradient(ellipse at top,rgba(124,108,255,.12),transparent 65%),#121722}
 @media(max-width:650px){.heading-actions{width:100%;align-items:stretch}.template-picker{flex:1;min-width:160px}.heading-actions>.button{align-self:end}}
+
+
+/* JT Motion visual pass: cinematic timeline-inspired surfaces */
+:root{--motion-glow:rgba(124,108,255,.16)}
+body:before{content:"";position:fixed;inset:76px 0 auto;height:260px;pointer-events:none;background:linear-gradient(110deg,transparent 15%,var(--motion-glow),transparent 78%);mask-image:linear-gradient(#000,transparent);z-index:-1}
+.page-heading{padding:20px 0 4px}
+.page-heading h1{font-size:clamp(28px,3vw,40px);background:linear-gradient(100deg,#f5f4ff 25%,#b4a8ff 65%,#72dce9);color:transparent;background-clip:text}
+.stat-card{position:relative;overflow:hidden;border-radius:16px}
+.stat-card:after{content:"";position:absolute;right:-24px;top:-35px;width:100px;height:100px;border:1px solid #a99fff20;border-radius:50%;box-shadow:0 0 0 12px #a99fff08,0 0 0 26px #a99fff05;pointer-events:none}
+.scene-content{border-radius:16px}
+.scene-card:focus-within .scene-content{border-color:#7c6cff88;box-shadow:0 0 0 3px #7c6cff14,0 16px 34px #0003}
+.scene-number{box-shadow:0 0 22px #7c6cff14}
+.button:focus-visible,.icon-button:focus-visible,.text-input:focus-visible{outline:2px solid #a99fff;outline-offset:3px}
