@@ -23,3 +23,17 @@ body:before{content:"";position:fixed;inset:76px 0 auto;height:260px;pointer-eve
 .scene-card:focus-within .scene-content{border-color:#7c6cff88;box-shadow:0 0 0 3px #7c6cff14,0 16px 34px #0003}
 .scene-number{box-shadow:0 0 22px #7c6cff14}
 .button:focus-visible,.icon-button:focus-visible,.text-input:focus-visible{outline:2px solid #a99fff;outline-offset:3px}
+
+
+/* Compact workspace density: retain cinematic hierarchy without oversized cards */
+.layout{grid-template-columns:224px minmax(0,1fr)}
+.sidebar{padding:20px 14px;gap:8px}
+.workspace{padding:26px clamp(16px,3vw,42px)}
+.stats{gap:10px;margin:20px 0 24px}
+.stat-card{padding:14px 16px}
+.scene-list{gap:11px}
+.scene-content{padding:15px}
+.scene-fields{gap:10px}
+.scene-fields textarea{min-height:84px}
+@media(max-width:900px){.layout{grid-template-columns:196px minmax(0,1fr)}}
+@media(max-width:650px){.layout{display:block}.sidebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:14px}.workspace{padding:20px 13px}}
